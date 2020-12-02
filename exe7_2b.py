@@ -1,8 +1,9 @@
 #!/usr/bin/python
-#without the deadlock
+# without the deadlock
 import threading
 import time
 import random
+
 
 class Operator:
 
@@ -14,7 +15,7 @@ class Operator:
         with self.lock:
             self.value += 1
             self.lock.notify()
-    
+
     def off(self):
         with self.lock:
             while self.value == 0:
@@ -23,7 +24,7 @@ class Operator:
 
 
 class Fork:
-    
+
     def __init__(self, number):
         self.number = number
         self.philosopher = -1
@@ -46,6 +47,7 @@ class Fork:
             self.taken = False
             self.lock.notifyAll()
 
+
 class Philosopher(threading.Thread):
 
     def __init__(self, left_fork: Fork, right_fork: Fork, philosopher_id: int, lock):
@@ -56,7 +58,7 @@ class Philosopher(threading.Thread):
         self.lock = lock
 
     def do_action(self, action: str):
-        print("Philospher number: ", self.philosopher_id , " " , action)
+        print("Philospher number: ", self.philosopher_id, " ", action)
         time.sleep(random.randint(1, 5))
 
     def run(self):
@@ -65,15 +67,16 @@ class Philosopher(threading.Thread):
             self.lock.off()
             self.do_action(str(time.time()) + ": Picked up left fork")
             self.left_fork.used(self.philosopher_id)
-            self.do_action(str(time.time()) + ": Picked up right fork - eating")
+            self.do_action(str(time.time()) +
+                           ": Picked up right fork - eating")
             self.right_fork.used(self.philosopher_id)
             self.do_action(str(time.time()) + ": Put down right fork")
             self.right_fork.unused(self.philosopher_id)
-            self.do_action(str(time.time()) + ": Put down left fork. Back to thinking")
+            self.do_action(str(time.time()) +
+                           ": Put down left fork. Back to thinking")
             self.left_fork.unused(self.philosopher_id)
             self.lock.on()
-            
-            
+
 
 if __name__ == "__main__":
     print("start")
@@ -84,10 +87,10 @@ if __name__ == "__main__":
 
     for i in range(n):
         forks.append(Fork(i))
-    
+
     for i in range(n):
         l_fork = forks[i]
-        r_fork = forks[(i+1)%5]
+        r_fork = forks[(i+1) % 5]
 
         if(i == n-1):
             p = Philosopher(r_fork, l_fork, i+1, lock)
@@ -95,7 +98,7 @@ if __name__ == "__main__":
             p = Philosopher(l_fork, r_fork, i+1, lock)
         p.start()
         philosophers.append(p)
-    
+
     for t in philosophers:
         t.join()
 
